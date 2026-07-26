@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -12,24 +12,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { isInitial, imageBase64, imageMimeType, audioBase64, audioMimeType, character, language } = body;
 
+    // KITA KEMBALI GUNAKAN MODEL YANG AKTIF DAN STABIL
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       generationConfig: {
         responseMimeType: "application/json",
-        responseSchema: {
-          type: SchemaType.OBJECT,
-          properties: {
-            reply: { type: SchemaType.STRING, description: "Balasan karakter" },
-            pronunciation: { type: SchemaType.INTEGER, description: "Skor pelafalan dari 0-100" },
-            fluency: { type: SchemaType.INTEGER, description: "Skor kelancaran dari 0-100" },
-            accuracy: { type: SchemaType.INTEGER, description: "Skor ketepatan bahasa dari 0-100" }
-          },
-          required: ["reply", "pronunciation", "fluency", "accuracy"],
-        },
       },
     });
 
-    // 1. Trik Mengacak Benda dengan JavaScript
     const daftarBenda = [
       'botol minum', 'sendok', 'sepatu', 'tas ransel', 
       'jam tangan', 'pensil', 'kacamata', 'penghapus', 
@@ -39,23 +29,32 @@ export async function POST(req: Request) {
 
     let prompt = "";
     
-    // 2. Mempertegas Prompt agar patuh pada bahasa room
     if (isInitial) {
       prompt = `PERANMU: Kamu adalah pahlawan/tokoh sejarah bernama ${character}.
       SITUASI: Kamu sedang memandu murid yang mengambil misi bahasa ${language}.
-      TUGAS: 
-      1. Sapa murid dengan gaya dan ciri khas karaktermu.
-      2. Berikan dia misi mendesak untuk memfoto dan menjelaskan benda ini: "${targetBenda}".
-      ATURAN MUTLAK: Balasanmu WAJIB 100% menggunakan bahasa ${language}. Jika room bahasa Jawa, gunakan bahasa Jawa sepenuhnya. Jika Inggris, gunakan bahasa Inggris sepenuhnya.
-      Batas: Maksimal 3 kalimat. Set skor pronunciation, fluency, dan accuracy ke angka 0.`;
+      TUGAS: Sapa murid dengan gaya dan ciri khas karaktermu. Berikan dia misi mendesak untuk memfoto dan menjelaskan benda ini: "${targetBenda}".
+      ATURAN MUTLAK: Balasanmu WAJIB 100% menggunakan bahasa ${language}.
+      
+      KEMBALIKAN OUTPUT DALAM FORMAT JSON PERSIS SEPERTI INI (TANPA MARKDOWN):
+      {
+        "reply": "Balasan karaktermu di sini (maksimal 3 kalimat)",
+        "pronunciation": 0,
+        "fluency": 0,
+        "accuracy": 0
+      }`;
     } else {
       prompt = `PERANMU: Kamu adalah ${character}.
       SITUASI: Mengevaluasi hasil temuan benda murid dalam bahasa ${language}.
-      TUGAS:
-      1. Berikan nilai 0-100 yang jujur untuk pronunciation, fluency, dan accuracy berdasarkan bukti gambar/suara yang mereka kirim.
-      2. Berikan komentar evaluasi dan semangat untuk misi selanjutnya.
+      TUGAS: Berikan nilai 0-100 yang jujur untuk pronunciation, fluency, dan accuracy berdasarkan bukti gambar/suara yang mereka kirim.
       ATURAN MUTLAK: Balasan WAJIB 100% menggunakan bahasa ${language}.
-      Batas: Maksimal 3 kalimat.`;
+      
+      KEMBALIKAN OUTPUT DALAM FORMAT JSON PERSIS SEPERTI INI (TANPA MARKDOWN):
+      {
+        "reply": "Komentar evaluasi dan penyemangatmu di sini (maksimal 3 kalimat)",
+        "pronunciation": [isi dengan angka penilaianmu dari 0-100],
+        "fluency": [isi dengan angka penilaianmu dari 0-100],
+        "accuracy": [isi dengan angka penilaianmu dari 0-100]
+      }`;
     }
 
     const parts: any[] = [prompt];
@@ -73,9 +72,9 @@ export async function POST(req: Request) {
     return NextResponse.json(parsedData);
 
   } catch (error: any) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini Error Detail:", error);
     return NextResponse.json({ 
-      reply: "Maaf, dimensi komunikasi terganggu sesaat. Coba reload sistemnya.", 
+      reply: "Sistem komunikasi GEMA sedang menyesuaikan frekuensi. Coba kirim ulang pesanmu ya, agen!", 
       pronunciation: 0, 
       fluency: 0, 
       accuracy: 0 

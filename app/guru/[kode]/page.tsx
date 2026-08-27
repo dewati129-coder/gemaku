@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
@@ -35,6 +34,7 @@ export default function DashboardGuru() {
         .select('*')
         .eq('room_code', roomCode)
         .single();
+
       if (data) setRoomInfo(data);
     };
 
@@ -44,6 +44,7 @@ export default function DashboardGuru() {
         .select('*')
         .eq('room_code', roomCode)
         .order('total_score', { ascending: false });
+
       if (data) setStudents(data);
     };
 
@@ -75,7 +76,9 @@ export default function DashboardGuru() {
         (payload) => {
           setStudents((prev) =>
             prev.map((student) =>
-              student.id === payload.new.id ? (payload.new as Student) : student
+              student.id === payload.new.id
+                ? (payload.new as Student)
+                : student
             )
           );
         }
@@ -94,203 +97,628 @@ export default function DashboardGuru() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        padding: '40px',
-        fontFamily: 'sans-serif',
-        backgroundColor: '#f8fafc',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1000px',
-          margin: '0 auto',
-          backgroundColor: 'white',
-          padding: '30px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    <div className="dashboard">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+            * {
+              box-sizing: border-box;
+            }
+
+            .dashboard {
+              min-height: 100vh;
+              padding: 32px;
+              background: #f3f4f6;
+              font-family: 'Space Grotesk', system-ui, sans-serif;
+              color: #1f2937;
+              position: relative;
+              overflow-x: hidden;
+            }
+
+            .dashboard::before,
+            .dashboard::after {
+              content: '';
+              position: fixed;
+              width: 300px;
+              height: 300px;
+              border-radius: 50%;
+              pointer-events: none;
+              opacity: 0.06;
+              z-index: 0;
+            }
+
+            .dashboard::before {
+              background: #2563eb;
+              top: -140px;
+              left: -100px;
+            }
+
+            .dashboard::after {
+              background: #10b981;
+              bottom: -150px;
+              right: -100px;
+            }
+
+            .container {
+              width: 100%;
+              max-width: 1100px;
+              margin: 0 auto;
+              position: relative;
+              z-index: 1;
+            }
+
+            .header {
+              background: white;
+              border-radius: 28px;
+              padding: 28px 30px;
+              border: 1px solid rgba(0, 0, 0, 0.04);
+              box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.045),
+                0 3px 10px rgba(0, 0, 0, 0.02);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 24px;
+              margin-bottom: 20px;
+            }
+
+            .brand-area {
+              display: flex;
+              align-items: center;
+              gap: 16px;
+            }
+
+            .brand-icon {
+              width: 50px;
+              height: 50px;
+              border-radius: 16px;
+              background: linear-gradient(135deg, #2563eb, #10b981);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-size: 21px;
+              font-weight: 700;
+              box-shadow: 0 8px 18px rgba(37, 99, 235, 0.15);
+              flex-shrink: 0;
+            }
+
+            .eyebrow {
+              display: flex;
+              align-items: center;
+              gap: 7px;
+              color: #9ca3af;
+              font-size: 11px;
+              font-weight: 700;
+              letter-spacing: 1.2px;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+
+            .dot {
+              width: 6px;
+              height: 6px;
+              background: #10b981;
+              border-radius: 50%;
+            }
+
+            .title {
+              margin: 0;
+              font-size: 24px;
+              line-height: 1.2;
+              font-weight: 700;
+              letter-spacing: -0.7px;
+              color: #1f2937;
+            }
+
+            .language {
+              margin: 6px 0 0;
+              font-size: 13px;
+              color: #9ca3af;
+            }
+
+            .language strong {
+              color: #6b7280;
+              font-weight: 600;
+            }
+
+            .room-box {
+              display: flex;
+              align-items: center;
+              gap: 13px;
+              background: #f9fafb;
+              border: 1px solid #f1f5f9;
+              padding: 9px 10px 9px 17px;
+              border-radius: 18px;
+            }
+
+            .room-label {
+              font-size: 10px;
+              color: #9ca3af;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              margin-bottom: 2px;
+            }
+
+            .room-code {
+              margin: 0;
+              color: #2563eb;
+              font-size: 25px;
+              line-height: 1;
+              font-weight: 700;
+              letter-spacing: 3px;
+            }
+
+            .copy-button {
+              border: none;
+              padding: 11px 14px;
+              border-radius: 13px;
+              background: #e2e8f0;
+              color: #475569;
+              cursor: pointer;
+              font-family: inherit;
+              font-size: 12px;
+              font-weight: 700;
+              transition:
+                transform 0.2s ease,
+                background 0.2s ease;
+            }
+
+            .copy-button:hover {
+              transform: translateY(-1px);
+            }
+
+            .copy-button.copied {
+              background: #10b981;
+              color: white;
+            }
+
+            .stats-row {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 14px;
+              margin-bottom: 20px;
+            }
+
+            .stat-card {
+              background: white;
+              border: 1px solid rgba(0, 0, 0, 0.04);
+              border-radius: 20px;
+              padding: 18px 20px;
+              box-shadow: 0 8px 25px rgba(0, 0, 0, 0.035);
+            }
+
+            .stat-label {
+              color: #9ca3af;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.8px;
+            }
+
+            .stat-number {
+              margin: 5px 0 0;
+              color: #1f2937;
+              font-size: 25px;
+              font-weight: 700;
+              letter-spacing: -1px;
+            }
+
+            .leaderboard {
+              background: white;
+              border-radius: 28px;
+              border: 1px solid rgba(0, 0, 0, 0.04);
+              box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.045),
+                0 3px 10px rgba(0, 0, 0, 0.02);
+              overflow: hidden;
+            }
+
+            .leaderboard-header {
+              padding: 25px 28px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 16px;
+            }
+
+            .section-title {
+              margin: 0;
+              font-size: 18px;
+              font-weight: 700;
+              letter-spacing: -0.4px;
+              color: #1f2937;
+            }
+
+            .section-subtitle {
+              margin: 5px 0 0;
+              color: #9ca3af;
+              font-size: 12px;
+            }
+
+            .live-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 7px;
+              padding: 7px 11px;
+              border-radius: 99px;
+              background: #f0fdf4;
+              color: #166534;
+              font-size: 10px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+            }
+
+            .live-dot {
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              background: #10b981;
+            }
+
+            .table-wrapper {
+              overflow-x: auto;
+            }
+
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              min-width: 780px;
+            }
+
+            thead tr {
+              background: #f8fafc;
+            }
+
+            th {
+              padding: 13px 18px;
+              color: #94a3b8;
+              font-size: 10px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+              text-align: left;
+              white-space: nowrap;
+            }
+
+            th.center {
+              text-align: center;
+            }
+
+            td {
+              padding: 16px 18px;
+              border-top: 1px solid #f1f5f9;
+              white-space: nowrap;
+            }
+
+            tbody tr {
+              transition: background 0.15s ease;
+            }
+
+            tbody tr:hover {
+              background: #fafafa;
+            }
+
+            .student-cell {
+              display: flex;
+              align-items: center;
+              gap: 11px;
+            }
+
+            .avatar {
+              width: 34px;
+              height: 34px;
+              border-radius: 11px;
+              background: #eff6ff;
+              color: #2563eb;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 13px;
+              font-weight: 700;
+            }
+
+            .student-name {
+              color: #1f2937;
+              font-size: 13px;
+              font-weight: 700;
+            }
+
+            .character {
+              color: #64748b;
+              font-size: 12px;
+              font-weight: 500;
+            }
+
+            .score {
+              text-align: center;
+              color: #2563eb;
+              font-size: 13px;
+              font-weight: 700;
+            }
+
+            .total-score {
+              display: inline-flex;
+              min-width: 48px;
+              justify-content: center;
+              padding: 6px 10px;
+              border-radius: 10px;
+              background: #dcfce3;
+              color: #166534;
+              font-size: 12px;
+              font-weight: 700;
+            }
+
+            .empty-state {
+              padding: 65px 20px;
+              text-align: center;
+            }
+
+            .empty-icon {
+              width: 48px;
+              height: 48px;
+              margin: 0 auto 14px;
+              border-radius: 15px;
+              background: #f8fafc;
+              color: #94a3b8;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 20px;
+            }
+
+            .empty-title {
+              margin: 0;
+              color: #475569;
+              font-size: 14px;
+              font-weight: 600;
+            }
+
+            .empty-description {
+              margin: 5px 0 0;
+              color: #cbd5e1;
+              font-size: 12px;
+            }
+
+            @media (max-width: 760px) {
+              .dashboard {
+                padding: 18px;
+              }
+
+              .header {
+                padding: 22px;
+                flex-direction: column;
+                align-items: stretch;
+              }
+
+              .room-box {
+                justify-content: space-between;
+              }
+
+              .stats-row {
+                grid-template-columns: 1fr;
+              }
+
+              .leaderboard-header {
+                padding: 22px;
+                align-items: flex-start;
+              }
+            }
+
+            @media (max-width: 480px) {
+              .brand-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+              }
+
+              .title {
+                font-size: 20px;
+              }
+
+              .room-code {
+                font-size: 21px;
+              }
+
+              .room-box {
+                padding-left: 13px;
+              }
+
+              .copy-button {
+                padding: 10px 11px;
+              }
+            }
+          `,
         }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderBottom: '2px solid #f1f5f9',
-            paddingBottom: '20px',
-            marginBottom: '20px',
-            flexWrap: 'wrap',
-            gap: '20px',
-          }}
-        >
-          <div>
-            <h1 style={{ margin: 0, color: '#1e293b' }}>
-              Dashboard Guru - GEMA
-            </h1>
-            <p style={{ margin: '5px 0 0 0', color: '#64748b' }}>
-              Bahasa Pembelajaran:{' '}
-              <strong>{roomInfo?.language || 'Memuat...'}</strong>
-            </p>
+      />
+
+      <div className="container">
+
+        {/* HEADER */}
+        <div className="header">
+          <div className="brand-area">
+            <div className="brand-icon">G</div>
+
+            <div>
+              <div className="eyebrow">
+                <span className="dot" />
+                Teacher Dashboard
+              </div>
+
+              <h1 className="title">
+                Dashboard Guru — GEMA
+              </h1>
+
+              <p className="language">
+                Bahasa Pembelajaran:{' '}
+                <strong>{roomInfo?.language || 'Memuat...'}</strong>
+              </p>
+            </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <p
-              style={{
-                margin: '0 0 5px 0',
-                fontSize: '14px',
-                color: '#64748b',
-              }}
-            >
-              Kode Room:
-            </p>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: '32px',
-                  color: '#2563eb',
-                  letterSpacing: '2px',
-                }}
-              >
+
+          <div className="room-box">
+            <div>
+              <div className="room-label">
+                Kode Room
+              </div>
+
+              <h2 className="room-code">
                 {roomCode}
               </h2>
-              <button
-                onClick={handleCopy}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: disalin ? '#10b981' : '#e2e8f0',
-                  color: disalin ? 'white' : '#475569',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                }}
-              >
-                {disalin ? '✓ Tersalin!' : 'Salin Kode'}
-              </button>
+            </div>
+
+            <button
+              onClick={handleCopy}
+              className={`copy-button ${disalin ? 'copied' : ''}`}
+            >
+              {disalin ? '✓ Tersalin' : 'Salin Kode'}
+            </button>
+          </div>
+        </div>
+
+        {/* STATS */}
+        <div className="stats-row">
+          <div className="stat-card">
+            <div className="stat-label">
+              Total Murid
+            </div>
+
+            <div className="stat-number">
+              {students.length}
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-label">
+              Status
+            </div>
+
+            <div className="stat-number">
+              Live
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-label">
+              Room
+            </div>
+
+            <div className="stat-number">
+              Aktif
             </div>
           </div>
         </div>
 
-        <h3 style={{ color: '#1f2937' }}>Leaderboard & Penilaian Murid:</h3>
-        {students.length === 0 ? (
-          <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>
-            Belum ada murid yang masuk. Menunggu...
-          </p>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                textAlign: 'left',
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor: '#f1f5f9',
-                    color: '#475569',
-                    fontSize: '14px',
-                  }}
-                >
-                  <th style={{ padding: '12px' }}>Nama Murid</th>
-                  <th style={{ padding: '12px' }}>Karakter</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>
-                    Pronunciation
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>
-                    Fluency
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>
-                    Accuracy
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>
-                    Total Skor
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student) => (
-                  <tr
-                    key={student.id}
-                    style={{ borderBottom: '1px solid #e2e8f0' }}
-                  >
-                    <td
-                      style={{
-                        padding: '12px',
-                        fontWeight: 'bold',
-                        color: '#1f2937',
-                      }}
-                    >
-                      {student.student_name}
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        color: '#64748b',
-                        fontSize: '13px',
-                      }}
-                    >
-                      {student.character_name}
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        textAlign: 'center',
-                        color: '#2563eb',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {student.pronunciation_score}
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        textAlign: 'center',
-                        color: '#2563eb',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {student.fluency_score}
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        textAlign: 'center',
-                        color: '#2563eb',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {student.accuracy_score}
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span
-                        style={{
-                          padding: '4px 10px',
-                          backgroundColor: '#dcfce3',
-                          color: '#166534',
-                          borderRadius: '20px',
-                          fontWeight: 'bold',
-                          fontSize: '13px',
-                        }}
-                      >
-                        {student.total_score}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* LEADERBOARD */}
+        <div className="leaderboard">
+
+          <div className="leaderboard-header">
+            <div>
+              <h3 className="section-title">
+                Leaderboard & Penilaian
+              </h3>
+
+              <p className="section-subtitle">
+                Pantau perkembangan murid secara realtime.
+              </p>
+            </div>
+
+            <div className="live-badge">
+              <span className="live-dot" />
+              Live Data
+            </div>
           </div>
-        )}
+
+          {students.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                ✦
+              </div>
+
+              <p className="empty-title">
+                Belum ada murid yang masuk.
+              </p>
+
+              <p className="empty-description">
+                Menunggu murid bergabung ke room...
+              </p>
+            </div>
+          ) : (
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama Murid</th>
+                    <th>Karakter</th>
+                    <th className="center">
+                      Pronunciation
+                    </th>
+                    <th className="center">
+                      Fluency
+                    </th>
+                    <th className="center">
+                      Accuracy
+                    </th>
+                    <th className="center">
+                      Total Skor
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {students.map((student) => (
+                    <tr key={student.id}>
+
+                      <td>
+                        <div className="student-cell">
+                          <div className="avatar">
+                            {student.student_name
+                              ?.charAt(0)
+                              ?.toUpperCase()}
+                          </div>
+
+                          <span className="student-name">
+                            {student.student_name}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span className="character">
+                          {student.character_name}
+                        </span>
+                      </td>
+
+                      <td className="score">
+                        {student.pronunciation_score}
+                      </td>
+
+                      <td className="score">
+                        {student.fluency_score}
+                      </td>
+
+                      <td className="score">
+                        {student.accuracy_score}
+                      </td>
+
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="total-score">
+                          {student.total_score}
+                        </span>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );

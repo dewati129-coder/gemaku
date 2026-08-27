@@ -43,30 +43,39 @@ export default function LandingPage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif", // Font lebih modern
         backgroundColor: '#f3f4f6',
         padding: '20px',
+        // Memakai font modern yang di-import di bawah
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
       }}
     >
+      {/* Trik Import Font Google Langsung Tanpa Repot */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+      `}} />
+
       <div
         style={{
           backgroundColor: 'white',
-          padding: '48px 40px', // Padding dilebarkan
-          borderRadius: '24px', // Ujung lebih membulat (Gen Z style)
-          boxShadow: '0 20px 40px rgba(0,0,0,0.04)', // Bayangan lebih soft
+          padding: '48px 40px',
+          borderRadius: '24px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.04)',
           textAlign: 'center',
           maxWidth: '420px',
           width: '100%',
-          border: '1px solid rgba(0,0,0,0.02)', // Border super tipis
+          border: '1px solid rgba(0,0,0,0.02)',
         }}
       >
         <h1
           style={{
-            fontSize: '42px',
-            fontWeight: '900',
-            letterSpacing: '-1.5px', // Jarak huruf lebih rapat
+            fontSize: '48px',
+            fontWeight: '800',
+            letterSpacing: '-2px',
             marginBottom: '8px',
-            color: '#2563eb',
+            // Efek Teks Gradasi (Estetik Vibes)
+            background: 'linear-gradient(135deg, #2563eb, #10b981)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
           GEMA
@@ -76,6 +85,7 @@ export default function LandingPage() {
             color: '#6b7280',
             marginBottom: '40px',
             fontSize: '15px',
+            fontWeight: '400',
             lineHeight: '1.6',
           }}
         >
@@ -93,13 +103,14 @@ export default function LandingPage() {
                 backgroundColor: '#2563eb',
                 color: 'white',
                 border: 'none',
-                borderRadius: '99px', // Bentuk kapsul (Pill button)
+                borderRadius: '99px',
                 cursor: 'pointer',
                 fontSize: '16px',
                 fontWeight: '600',
                 letterSpacing: '0.5px',
-                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)', // Bayangan sewarna tombol
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)',
                 transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
               }}
             >
               Masuk sebagai Guru
@@ -118,6 +129,7 @@ export default function LandingPage() {
                 letterSpacing: '0.5px',
                 boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)',
                 transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
               }}
             >
               Masuk sebagai Murid
@@ -129,7 +141,7 @@ export default function LandingPage() {
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
-            <h3 style={{ color: '#1f2937', fontSize: '18px', margin: 0 }}>
+            <h3 style={{ color: '#1f2937', fontSize: '18px', margin: 0, fontWeight: '600' }}>
               Pilih Bahasa Pembelajaran
             </h3>
             <select
@@ -142,9 +154,10 @@ export default function LandingPage() {
                 color: '#1f2937',
                 backgroundColor: '#f9fafb',
                 fontSize: '16px',
-                fontWeight: '500',
+                fontWeight: '600',
                 outline: 'none',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
             >
               <option value="Indonesia">Bahasa Indonesia</option>
@@ -165,6 +178,7 @@ export default function LandingPage() {
                 fontWeight: '600',
                 marginTop: '8px',
                 boxShadow: loading ? 'none' : '0 4px 14px rgba(37, 99, 235, 0.2)',
+                fontFamily: 'inherit',
               }}
             >
               {loading ? 'Membuat Room...' : 'Buat Room'}
@@ -178,8 +192,8 @@ export default function LandingPage() {
                 cursor: 'pointer',
                 marginTop: '10px',
                 fontSize: '14px',
-                fontWeight: '500',
-                textDecoration: 'underline',
+                fontWeight: '600',
+                fontFamily: 'inherit',
               }}
             >
               Kembali
@@ -191,7 +205,7 @@ export default function LandingPage() {
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
-            <h3 style={{ color: '#1f2937', fontSize: '18px', margin: 0 }}>
+            <h3 style={{ color: '#1f2937', fontSize: '18px', margin: 0, fontWeight: '600' }}>
               Masukkan Kode Room
             </h3>
             <input
@@ -208,9 +222,10 @@ export default function LandingPage() {
                 backgroundColor: '#f9fafb',
                 fontSize: '18px',
                 textAlign: 'center',
-                fontWeight: 'bold',
+                fontWeight: '800',
                 outline: 'none',
                 letterSpacing: '2px',
+                fontFamily: 'inherit',
               }}
             />
             <button
@@ -226,6 +241,7 @@ export default function LandingPage() {
                 fontWeight: '600',
                 marginTop: '8px',
                 boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)',
+                fontFamily: 'inherit',
               }}
             >
               Masuk Room
@@ -239,8 +255,8 @@ export default function LandingPage() {
                 cursor: 'pointer',
                 marginTop: '10px',
                 fontSize: '14px',
-                fontWeight: '500',
-                textDecoration: 'underline',
+                fontWeight: '600',
+                fontFamily: 'inherit',
               }}
             >
               Kembali

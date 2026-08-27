@@ -130,6 +130,7 @@ function ChatRoomContent() {
     }
   };
 
+  // Fungsi mengubah file audio menjadi Base64
   const fileToBase64 = (file: Blob): Promise<string> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -140,6 +141,47 @@ function ChatRoomContent() {
       };
 
       reader.readAsDataURL(file);
+    });
+  };
+
+  // Fungsi BARU: Mengkompresi resolusi foto agar ringan di HP
+  const compressImageToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; // Resolusi maksimal
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Ubah ke JPEG kualitas 70%
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl.split(',')[1]);
+        };
+      };
+      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -170,8 +212,9 @@ function ChatRoomContent() {
     ]);
 
     try {
+      // Menggunakan fungsi kompresi untuk gambar
       const imageBase64 = imageFile
-        ? await fileToBase64(imageFile)
+        ? await compressImageToBase64(imageFile)
         : undefined;
 
       const audioBase64 = audioBlob
@@ -184,7 +227,7 @@ function ChatRoomContent() {
         body: JSON.stringify({
           isInitial: false,
           imageBase64,
-          imageMimeType: imageFile?.type,
+          imageMimeType: imageFile ? 'image/jpeg' : undefined, // Selalu jpeg setelah dikompres
           audioBase64,
           audioMimeType: audioBlob?.type,
           character: studentData.character_name,
